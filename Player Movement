@@ -1,0 +1,64 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerController : MonoBehaviour
+{
+
+    public float moveSpeed;
+
+    private Animator anim;
+    private Rigidbody2D myRigidBody;
+
+    //what we're using to see if the player exists
+    private static bool playerExist;
+
+    //allows the player to load in designated places
+    public string startPoint;
+
+    public bool canMove;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        anim = GetComponent<Animator>();
+        myRigidBody = GetComponent<Rigidbody2D>();
+
+        //make sure no character exists in the world and, by default, when no player is in the world, it'll be false
+        if (!playerExist)
+        {
+            playerExist = true;
+
+            //when going to the new level, doesn't destroy the gameobject that's attatched to this script
+            DontDestroyOnLoad(transform.gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
+
+    }
+
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+
+        //making sure the player can't move during dialogue
+        if (!canMove)
+        {
+            myRigidBody.velocity = Vector2.zero;
+            return;
+        }
+
+        anim.SetFloat("MoveXAxis", Input.GetAxisRaw("Horizontal"));
+        anim.SetFloat("MoveYAxis", Input.GetAxisRaw("Vertical"));
+
+        //Better directional movement
+        myRigidBody.velocity = new Vector2(Input.GetAxisRaw("Horizontal")*moveSpeed, myRigidBody.velocity.y);
+        myRigidBody.velocity = new Vector2(myRigidBody.velocity.x, Input.GetAxisRaw("Vertical")*moveSpeed);
+
+
+
+    }
+}
