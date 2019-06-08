@@ -1,0 +1,43 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+//ensuring that other components needed by the script are also attached.
+[RequireComponent(typeof(CharacterController))]
+[AddComponentMenu("Control Script/FPS Input")]
+
+public class FPSInput : MonoBehaviour
+{
+    //player's keyboard controls
+
+    public float speed = 6.0f;
+
+    //applying collision detection, so we're using the character controller which detects collision and makes the object play like a player object
+    private CharacterController _charaController;
+
+
+    //keeping player on the ground
+    public float gravity = -9.8f;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        _charaController = GetComponent<CharacterController>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        float deltaX = Input.GetAxis("Horizontal") * speed;
+        float deltaZ = Input.GetAxis("Vertical") * speed;
+        //limiting the diagonal movement to the same speed as the movement along the x and y axis so the dia won't speed up way more than it should 
+        Vector3 movement = new Vector3(deltaX, 0, deltaZ);
+        movement = Vector3.ClampMagnitude(movement, speed);
+        movement.y = gravity; //now there's a constant downward force to the player keeping them down
+
+        movement *= Time.deltaTime;
+        movement = transform.TransformDirection(movement);//transforming the movement vector (and direction)from local to global so my left would ACTUALLY be left in the world
+        _charaController.Move(movement); //having the chara controller move by the vector
+
+    }
+}
