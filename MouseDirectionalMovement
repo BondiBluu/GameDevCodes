@@ -1,0 +1,70 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class MouseLook : MonoBehaviour
+{
+    //having the rotation respond to mouse input
+
+
+        public enum RotationAxes {MouseXAndY = 0, MouseX = 1, MouseY = 2}
+
+    //so we can see this in unity
+    public RotationAxes axes = RotationAxes.MouseXAndY;
+    //rotation speed from side to side
+    public float sensitivityHor = 9.0f;
+    //we have to put a limit to how far up or down we can see
+    public float sensitivityVer = 9.0f;
+
+    public float minimumVert = -45.0f;
+    public float maximumVert = 45.0f;
+
+    private float _rotationX = 0; //declaring a private variable for the vertical angle
+
+   void Start()
+    {
+        Rigidbody bod = GetComponent<Rigidbody>();
+        if(bod != null) //checking if the component exists
+        {
+            bod.freezeRotation = true;
+        }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (axes == RotationAxes.MouseX)
+        {
+            //having the mouse react to input
+            transform.Rotate(0, Input.GetAxis("Mouse X")*sensitivityHor, 0);
+        }
+        else if (axes == RotationAxes.MouseY)
+        {
+            //if we're not moving the mouse side to side, we're probably doing this
+            _rotationX -= Input.GetAxis("Mouse Y") * sensitivityVer;
+            //clamping the vertical andle between the min and max values (to get diagonal values?)
+            _rotationX = Mathf.Clamp(_rotationX, minimumVert, maximumVert);
+
+            float rotationY = transform.localEulerAngles.y; //we're keeping the same angle and having no horizontal rotation
+
+            transform.localEulerAngles = new Vector3(_rotationX, rotationY, 0);//making a new vector from the stored rotation values
+
+        }
+        else
+        {
+            _rotationX -= Input.GetAxis("Mouse Y") * sensitivityVer;
+            _rotationX = Mathf.Clamp(_rotationX, minimumVert, maximumVert);
+
+
+            //the rotation isn't being handled by Rotation() anymore, but rotationY and and the delta lines
+            //delta- the amount to change the rotation by
+            float delta = Input.GetAxis("Mouse X") * sensitivityHor;
+            //incrementing the rotaion angle by delta
+            float rotationY = transform.localEulerAngles.y + delta;
+
+            transform.localEulerAngles = new Vector3(_rotationX, rotationY, 0);
+
+        }
+
+    }
+}
